@@ -27,6 +27,16 @@ pragma solidity ^0.8.30;
 // 16. add a function to unlike the tweet
 // 17. mark both functions external
 
+// 18. create an Event for creating the tweet
+// 19. emit the Event in the creation of a tweet
+// 20. create event for liking the tweet and emit that event
+
+// - Create a function, to get total Tweet likes for the user
+// - Loop over all the tweets
+// - Sum the totalLikes
+// - Return the total likes 
+
+
 contract Twitter {
 
     // define struct
@@ -36,7 +46,7 @@ contract Twitter {
         uint256 id;
         address author;
         string content;
-        uint timestamp;
+        uint256 timestamp;
         uint likes;
     }
 
@@ -47,6 +57,11 @@ contract Twitter {
     constructor() {
         owner = msg.sender; // the one tha creates the contract
     }
+
+    //Events
+    event TweetCreated(uint256 id, address author, string content, uint256 timestamp);
+    event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
+    event TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "YOU ARE NOT THE OWNER!");
@@ -62,7 +77,7 @@ contract Twitter {
         // if tweeth length <= 280 continue otherwise revert
         require(bytes(_tweet).length <= MAX_TWEET_LENGTH, "Tweet is too long bro!");
 
-        Tweet memory newTeet = Tweet({
+        Tweet memory newTweet = Tweet({
             id: tweets[msg.sender].length,
             author: msg.sender,
             content: _tweet,
@@ -70,7 +85,9 @@ contract Twitter {
             likes: 0
         });
 
-        tweets[msg.sender].push(newTeet);
+        tweets[msg.sender].push(newTweet);
+
+        emit TweetCreated(newTweet.id, newTweet.author, newTweet.content, newTweet.timestamp);
     }
 
     // external, since will never be used inside the contract
@@ -78,6 +95,8 @@ contract Twitter {
         require(tweets[author][id].id == id, "TWEET DOES NOT EXIST");
 
         tweets[author][id].likes++;
+
+        emit TweetLiked(msg.sender, author, id, tweets[author][id].likes);
     }
 
     function unlikeTweet(address author, uint256 id) external {
@@ -85,6 +104,8 @@ contract Twitter {
         require(tweets[author][id].likes > 0, "TWEET HAS NO LIKES");
         
         tweets[author][id].likes--;
+
+        emit TweetUnliked(msg.sender, author, id, tweets[author][id].likes);
     }
 
     function getTweet( uint _i) public view returns (Tweet memory) {
