@@ -63,13 +63,28 @@ contract Twitter {
     event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
     event TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
 
+    // Modifiers
     modifier onlyOwner() {
         require(msg.sender == owner, "YOU ARE NOT THE OWNER!");
         _;
     }
 
+
+    // Functions
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
         MAX_TWEET_LENGTH = newTweetLength;
+    }
+
+    function getTotalLikes(address _author) external view returns(uint) {
+        uint totalLikes;
+
+        require ( tweets[_author].length > 0, "TWEET HAS NO LIKES");
+
+        for( uint i= 0; i < tweets[_author].length; i++) {
+            totalLikes += tweets[_author][i].likes;
+        }
+
+        return totalLikes;
     }
 
     function createTweet(string memory _tweet) public {
