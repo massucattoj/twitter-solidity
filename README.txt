@@ -1,30 +1,89 @@
-REMIX DEFAULT WORKSPACE
+# 🐦 Twitter Smart Contract
 
-Remix default workspace is present when:
-i. Remix loads for the very first time 
-ii. A new workspace is created with 'Default' template
-iii. There are no files existing in the File Explorer
+A simple, decentralized Twitter-like application built with Solidity. Users can create tweets, like/unlike them, and fetch tweets by user. The contract also includes access control for managing platform-wide tweet constraints.
 
-This workspace contains 3 directories:
+---
 
-1. 'contracts': Holds three contracts with increasing levels of complexity.
-2. 'scripts': Contains four typescript files to deploy a contract. It is explained below.
-3. 'tests': Contains one Solidity test file for 'Ballot' contract & one JS test file for 'Storage' contract.
+## 🚀 Features
 
-SCRIPTS
+- Post tweets with a character limit (default: 280)
+- Like and unlike tweets
+- View individual tweets and user tweet history
+- Owner-controlled tweet length configuration
 
-The 'scripts' folder has four typescript files which help to deploy the 'Storage' contract using 'web3.js' and 'ethers.js' libraries.
+---
 
-For the deployment of any other contract, just update the contract name from 'Storage' to the desired contract and provide constructor arguments accordingly 
-in the file `deploy_with_ethers.ts` or  `deploy_with_web3.ts`
+## 🧱 Smart Contract Structure
 
-In the 'tests' folder there is a script containing Mocha-Chai unit tests for 'Storage' contract.
+### `struct Tweet`
+Defines the structure of a tweet:
+- `id` – Unique tweet ID (per user)
+- `author` – Address of the tweet author
+- `content` – The tweet text
+- `timestamp` – When the tweet was created
+- `likes` – Number of likes
 
-To run a script, right click on file name in the file explorer and click 'Run'. Remember, Solidity file must already be compiled.
-Output from script will appear in remix terminal.
+---
 
-Please note, require/import is supported in a limited manner for Remix supported modules.
-For now, modules supported by Remix are ethers, web3, swarmgw, chai, multihashes, remix and hardhat only for hardhat.ethers object/plugin.
-For unsupported modules, an error like this will be thrown: '<module_name> module require is not supported by Remix IDE' will be shown.
+## 🛠 Functions
+
+### ✅ Tweet Management
+
+| Function | Description |
+|---------|-------------|
+| `createTweet(string memory _tweet)` | Creates a new tweet. Reverts if it exceeds `MAX_TWEET_LENGTH`. |
+| `getTweet(uint _i)` | Returns the `i-th` tweet of the caller. |
+| `getAllTweets(address _owner)` | Returns all tweets of a specific address. |
+
+### ❤️ Likes
+
+| Function | Description |
+|---------|-------------|
+| `likeTweet(address author, uint256 id)` | Likes a tweet by a specific author. |
+| `unlikeTweet(address author, uint256 id)` | Unlikes a tweet, if liked. |
+
+### ⚙️ Admin (Owner-only)
+
+| Function | Description |
+|----------|-------------|
+| `changeTweetLength(uint16 newTweetLength)` | Updates the maximum tweet length. |
+| `onlyOwner` | Modifier to restrict access to the contract owner. |
+
+---
+
+## 🔒 Access Control
+
+- The contract deployer is automatically set as the `owner`.
+- Only the owner can change the max tweet length via `changeTweetLength`.
+
+---
+
+## ⚠️ Requirements
+
+- Tweets must not exceed `MAX_TWEET_LENGTH` (default: 280).
+- Tweet ID is set based on the current number of tweets by the user.
+- You can only unlike tweets with at least 1 like.
+
+---
+
+## 🧪 Example Usage
+
+```solidity
+// Create a tweet
+twitter.createTweet("Hello Web3!");
+
+// Like a tweet
+twitter.likeTweet(address_of_author, tweet_id);
+
+// Get all tweets from a user
+Tweet[] memory myTweets = twitter.getAllTweets(msg.sender);
+
+## 📜 License  
+This project is licensed under the MIT License.
+
+## ✨ Author  
+Built with ❤️ using Solidity.  
+Feel free to contribute or fork the project!
+
 
 https://www.youtube.com/watch?v=AYpftDFiIgk&t
