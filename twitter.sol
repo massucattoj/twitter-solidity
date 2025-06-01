@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.30;
 
-// https://www.youtube.com/watch?v=AYpftDFiIgk&t
+
 // 1. create a twitter contract
 // 2. create a mapping between user and tweet
 // 3. add function to create a tweet and save it in mapping
@@ -20,9 +20,12 @@ pragma solidity ^0.8.30;
 // 11. create a modifier called onlyOwner
 // 12. only owners can change tweet length
 
+// LIKES
 // 13. add id to Tweet Struct to make every Tweet unique
 // 14. set the id to be the Tweet[] length
-
+// 15. add a function to like the tweet
+// 16. add a function to unlike the tweet
+// 17. mark both functions external
 
 contract Twitter {
 
@@ -30,6 +33,7 @@ contract Twitter {
     uint16 public MAX_TWEET_LENGTH = 280;
 
     struct Tweet {
+        uint256 id;
         address author;
         string content;
         uint timestamp;
@@ -59,6 +63,7 @@ contract Twitter {
         require(bytes(_tweet).length <= MAX_TWEET_LENGTH, "Tweet is too long bro!");
 
         Tweet memory newTeet = Tweet({
+            id: tweets[msg.sender].length,
             author: msg.sender,
             content: _tweet,
             timestamp: block.timestamp,
@@ -68,11 +73,25 @@ contract Twitter {
         tweets[msg.sender].push(newTeet);
     }
 
-    function getTweet(uint _i) public view returns (Tweet memory) {
+    // external, since will never be used inside the contract
+    function likeTweet(address author, uint256 id) external {
+        require(tweets[author][id].id == id, "TWEET DOES NOT EXIST");
+
+        tweets[author][id].likes++;
+    }
+
+    function unlikeTweet(address author, uint256 id) external {
+        require(tweets[author][id].id == id, "TWEET DOES NOT EXIST");
+        require(tweets[author][id].likes > 0, "TWEET HAS NO LIKES");
+        
+        tweets[author][id].likes--;
+    }
+
+    function getTweet( uint _i) public view returns (Tweet memory) {
         return tweets[msg.sender][_i];
     }
 
-    function getAllTweets(address _owner) public view returns (Tweet[] memory ) {
+    function getAllTweets(address _owner) public view returns (Tweet[] memory ){
         return tweets[_owner];
     }
 }   
