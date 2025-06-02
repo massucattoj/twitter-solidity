@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 pragma solidity ^0.8.30;
 
 
@@ -36,10 +38,14 @@ pragma solidity ^0.8.30;
 // - Sum the totalLikes
 // - Return the total likes 
 
+// - Import Ownable.sol contract from OpenZeppelin
+// - Inherit Ownable Contract
+// - Replace current onlyOwner
 
-contract Twitter {
+contract Twitter is Ownable {
+    // Need to add that to initialize the Ownable
+    constructor() Ownable(msg.sender) {}
 
-    // define struct
     uint16 public MAX_TWEET_LENGTH = 280;
 
     struct Tweet {
@@ -51,24 +57,18 @@ contract Twitter {
     }
 
     mapping (address => Tweet[]) public tweets;
-    address public owner;
-
-    // this constructor is called exactly when the contract is deployed
-    constructor() {
-        owner = msg.sender; // the one tha creates the contract
-    }
-
+    // address public owner;
+   
     //Events
     event TweetCreated(uint256 id, address author, string content, uint256 timestamp);
     event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
     event TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
 
     // Modifiers
-    modifier onlyOwner() {
-        require(msg.sender == owner, "YOU ARE NOT THE OWNER!");
-        _;
-    }
-
+    // modifier onlyOwner() {
+    //     require(msg.sender == owner, "YOU ARE NOT THE OWNER!");
+    //     _;
+    // }
 
     // Functions
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
