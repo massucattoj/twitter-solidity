@@ -6,10 +6,19 @@ A simple, decentralized Twitter-like application built with Solidity. Users can 
 
 ## 🚀 Features
 
-- Post tweets with a character limit (default: 280)
-- Like and unlike tweets
-- View individual tweets and user tweet history
-- Owner-controlled tweet length configuration
+- 📝 Post tweets with a configurable character limit (default: 280)
+- ❤️ Like and Unlike tweets
+- 🔍 View single tweets or all tweets by a user
+- 🔐 Only registered users (via profile contract) can interact
+- ⚙️ Owner-only access to adjust platform settings
+
+---
+
+## 🛠 Tech Stack
+
+- **Solidity** `^0.8.0`
+- **OpenZeppelin Contracts**
+- Compatible with **Hardhat** or **Foundry**
 
 ---
 
@@ -25,36 +34,53 @@ Defines the structure of a tweet:
 
 ---
 
-## 🛠 Functions
+## 📜 Functions
 
 ### ✅ Tweet Management
 
 | Function | Description |
 |---------|-------------|
-| `createTweet(string memory _tweet)` | Creates a new tweet. Reverts if it exceeds `MAX_TWEET_LENGTH`. |
-| `getTweet(uint _i)` | Returns the `i-th` tweet of the caller. |
-| `getAllTweets(address _owner)` | Returns all tweets of a specific address. |
+| `createTweet(string _tweet)` | Creates a tweet if within character limit and user is registered |
+| `getTweet(uint _i)` | Fetches the i-th tweet of the sender |
+| `getAllTweets(address _owner)` | Fetches all tweets by a specific user address |
 
 ### ❤️ Likes
 
 | Function | Description |
 |---------|-------------|
-| `likeTweet(address author, uint256 id)` | Likes a tweet by a specific author. |
-| `unlikeTweet(address author, uint256 id)` | Unlikes a tweet, if liked. |
+| `likeTweet(address author, uint256 id)` | Like a specific tweet from another user |
+| `unlikeTweet(address author, uint256 id)` | Unlike a tweet (if it has likes) |
 
-### ⚙️ Admin (Owner-only)
+### 📊 Analytics
+
+| Function | Description |
+|---------|-------------|
+| `getTotalLikes(address author)` | Returns total likes across all tweets by a user |
+
+### ⚙️ Owner-Only Admin
 
 | Function | Description |
 |----------|-------------|
-| `changeTweetLength(uint16 newTweetLength)` | Updates the maximum tweet length. |
-| `onlyOwner` | Modifier to restrict access to the contract owner. |
+| `changeTweetLength(uint16 newTweetLength)` | Update max allowed tweet length (default: 280) |
+
+### 📣 Events
+
+| Event | Description |
+|-------|-------------|
+| `TweetCreated(uint256 id, address author, string content, uint256 timestamp)` | Emitted when a tweet is created |
+| `TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount)` | Emitted when a tweet is liked |
+| `TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount)` | Emitted when a tweet is unliked |
 
 ---
 
-## 🔒 Access Control
+## 🔐 Access Control
 
-- The contract deployer is automatically set as the `owner`.
-- Only the owner can change the max tweet length via `changeTweetLength`.
+- Inherits from OpenZeppelin's `Ownable`
+- Only the contract owner can modify `MAX_TWEET_LENGTH` using `changeTweetLength`
+- Only registered users (those with a non-empty `displayName` in the `IProfile` contract) can:
+  - Create tweets
+  - Like tweets
+  - Unlike tweets
 
 ---
 
