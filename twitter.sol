@@ -5,46 +5,64 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 pragma solidity ^0.8.30;
 
 
-// 1. create a twitter contract
-// 2. create a mapping between user and tweet
-// 3. add function to create a tweet and save it in mapping
-// 4. create a function to get tweet
-// 5. add arrays of tweets
-
-
-// 6. define a tweet structure (author, content, timestamp, likes)
-// 7. add the struct to the array
-
-// 8. use require to limit the length of the tweet to be only 280 characters 
-
-// 9. add a function to change tweet max length
-// 10. create a constructor function to set an owner of contract
-// 11. create a modifier called onlyOwner
-// 12. only owners can change tweet length
+// - create a twitter contract
+// - create a mapping between user and tweet
+// - add function to create a tweet and save it in mapping
+// - create a function to get tweet
+// - add arrays of tweets
+// - define a tweet structure (author, content, timestamp, likes)
+// - add the struct to the array
+// - use require to limit the length of the tweet to be only 280 characters 
+// - add a function to change tweet max length
+// - create a constructor function to set an owner of contract
+// - create a modifier called onlyOwner
+// - only owners can change tweet length
 
 // LIKES
-// 13. add id to Tweet Struct to make every Tweet unique
-// 14. set the id to be the Tweet[] length
-// 15. add a function to like the tweet
-// 16. add a function to unlike the tweet
-// 17. mark both functions external
+// - add id to Tweet Struct to make every Tweet unique
+// - set the id to be the Tweet[] length
+// - add a function to like the tweet
+// - add a function to unlike the tweet
+// - mark both functions external
 
-// 18. create an Event for creating the tweet
-// 19. emit the Event in the creation of a tweet
-// 20. create event for liking the tweet and emit that event
+// EVENTS
+// - create an Event for creating the tweet
+// - emit the Event in the creation of a tweet
+// - create event for liking the tweet and emit that event
 
+// LOOPS
 // - Create a function, to get total Tweet likes for the user
 // - Loop over all the tweets
 // - Sum the totalLikes
 // - Return the total likes 
 
+// INHERITANCE
 // - Import Ownable.sol contract from OpenZeppelin
 // - Inherit Ownable Contract
 // - Replace current onlyOwner
 
+// Contract to Contract
+// - add a getProfile() function to the interface
+// - initialize the IProfile constructor
+// - create a modifier called onlyRegistered that require the msg.sender
+// - add the onlyRegistered modified to create like and unlike a tweet
+
+interface IProfile {
+    struct UserProfile {
+        string displayName;
+        string bio;
+    }
+
+    function getProfile(address _user) external view returns (UserProfile memory);
+}
+
 contract Twitter is Ownable {
     // Need to add that to initialize the Ownable
-    constructor() Ownable(msg.sender) {}
+    IProfile profileContract;
+    
+    constructor(address _profileContract) Ownable(msg.sender) {
+        profileContract = IProfile(_profileContract);
+    }
 
     uint16 public MAX_TWEET_LENGTH = 280;
 
@@ -58,7 +76,7 @@ contract Twitter is Ownable {
 
     mapping (address => Tweet[]) public tweets;
     // address public owner;
-   
+    
     //Events
     event TweetCreated(uint256 id, address author, string content, uint256 timestamp);
     event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
@@ -69,6 +87,11 @@ contract Twitter is Ownable {
     //     require(msg.sender == owner, "YOU ARE NOT THE OWNER!");
     //     _;
     // }
+    modifier onlyRegistered(){
+        IProfile.UserProfile memory userProfileTemp = profileContract.getProfile(msg.sender);
+        require(bytes(userProfileTemp.displayName).length > 0, "USER NOT REGISTERED");
+        _;
+    }
 
     // Functions
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
@@ -87,7 +110,7 @@ contract Twitter is Ownable {
         return totalLikes;
     }
 
-    function createTweet(string memory _tweet) public {
+    function createTweet(string memory _tweet) public onlyRegistered {
 
         // if tweeth length <= 280 continue otherwise revert
         require(bytes(_tweet).length <= MAX_TWEET_LENGTH, "Tweet is too long bro!");
@@ -106,21 +129,22 @@ contract Twitter is Ownable {
     }
 
     // external, since will never be used inside the contract
-    function likeTweet(address author, uint256 id) external {
+    function likeTweet(address author, uint256 id) external  onlyRegistered {  
         require(tweets[author][id].id == id, "TWEET DOES NOT EXIST");
 
         tweets[author][id].likes++;
 
+        // Emit the TweetLiked event
         emit TweetLiked(msg.sender, author, id, tweets[author][id].likes);
     }
 
-    function unlikeTweet(address author, uint256 id) external {
+    function unlikeTweet(address author, uint256 id) external  onlyRegistered {
         require(tweets[author][id].id == id, "TWEET DOES NOT EXIST");
         require(tweets[author][id].likes > 0, "TWEET HAS NO LIKES");
         
         tweets[author][id].likes--;
 
-        emit TweetUnliked(msg.sender, author, id, tweets[author][id].likes);
+        emit TweetUnliked(msg.sender, author, id, tweets[author][id].likes );
     }
 
     function getTweet( uint _i) public view returns (Tweet memory) {
