@@ -2,7 +2,6 @@
 
 A simple, decentralized Twitter-like application built with Solidity. Users can create tweets, like/unlike them, and fetch tweets by user. The contract also includes access control for managing platform-wide tweet constraints.
 
----
 
 ## 🚀 Features
 
@@ -12,7 +11,6 @@ A simple, decentralized Twitter-like application built with Solidity. Users can 
 - 🔐 Only registered users (via profile contract) can interact
 - ⚙️ Owner-only access to adjust platform settings
 
----
 
 ## 🛠 Tech Stack
 
@@ -20,7 +18,6 @@ A simple, decentralized Twitter-like application built with Solidity. Users can 
 - **OpenZeppelin Contracts**
 - Compatible with **Hardhat** or **Foundry**
 
----
 
 ## 🧱 Smart Contract Structure
 
@@ -32,7 +29,6 @@ Defines the structure of a tweet:
 - `timestamp` – When the tweet was created
 - `likes` – Number of likes
 
----
 
 ## 📜 Functions
 
@@ -71,7 +67,6 @@ Defines the structure of a tweet:
 | `TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount)` | Emitted when a tweet is liked |
 | `TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount)` | Emitted when a tweet is unliked |
 
----
 
 ## 🔐 Access Control
 
@@ -82,15 +77,6 @@ Defines the structure of a tweet:
   - Like tweets
   - Unlike tweets
 
----
-
-## ⚠️ Requirements
-
-- Tweets must not exceed `MAX_TWEET_LENGTH` (default: 280).
-- Tweet ID is set based on the current number of tweets by the user.
-- You can only unlike tweets with at least 1 like.
-
----
 
 ## 🧪 Example Usage
 
@@ -103,6 +89,7 @@ twitter.likeTweet(address_of_author, tweet_id);
 
 // Get all tweets from a user
 Tweet[] memory myTweets = twitter.getAllTweets(msg.sender);
+```
 
 ## 📜 License  
 This project is licensed under the MIT License.
